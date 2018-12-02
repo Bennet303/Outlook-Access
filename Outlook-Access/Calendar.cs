@@ -74,9 +74,79 @@ namespace Outlook_Access
 
 
         //Returning every appointment within a given interval 
-        public Outlook.Items FindAppointmentsInRange(DateTime pStart, DateTime pEnd)
+        public List<Outlook.AppointmentItem> FindAppointmentsInRange(DateTime pStart, DateTime pEnd)
         {
-            string filter = String.Format("[Start] >= '{0}' AND [End] < '{1}'", 
+            List<Outlook.AppointmentItem> appts = new List<Outlook.AppointmentItem>();
+            foreach (Outlook.AppointmentItem appt in RestrictByInterval(pStart, pEnd))
+            {
+                appts.Add(appt);
+            }
+            return appts;
+        }
+
+        //Returns every appointment with a given subject within a given interval
+        public List<Outlook.AppointmentItem> FindAppointmentsBySubject(string pSubject, DateTime pStart, DateTime pEnd, bool pIsSubstring)
+        {
+            return RestrictBySubject(RestrictByInterval(pStart, pEnd), pSubject, pIsSubstring);
+        }
+
+        public List<Outlook.AppointmentItem> FindAppointmentsBySubject(string pSubject, DateTime pStart, DateTime pEnd)
+        {
+            return FindAppointmentsBySubject(pSubject, pStart, pEnd, false);
+        }
+
+        //Returns every appointment with one of the given subjects within a given interval
+        public List <Outlook.AppointmentItem> FindAppointmentsBySubject(string[] pSubjects, DateTime pStart, DateTime pEnd, bool pIsSubstring)
+        {
+            Outlook.Items apptsInInterval = RestrictByInterval(pStart, pEnd);
+            List<Outlook.AppointmentItem> appts = new List<Outlook.AppointmentItem>();
+            foreach (string subject in pSubjects)
+            {
+                appts.Concat(RestrictBySubject(RestrictByInterval(pStart, pEnd), subject, pIsSubstring));
+            }
+            return appts;
+        }
+
+        public List<Outlook.AppointmentItem> FindAppointmentsBySubject(string[] pSubjects, DateTime pStart, DateTime pEnd)
+        {
+            return FindAppointmentsByLocation(pSubjects, pStart, pEnd, false);
+        }
+
+        //Returns every appointment in a given location within a given interval 
+        public List<Outlook.AppointmentItem>FindAppointmentsByLocation(string pLocation, DateTime pStart, DateTime pEnd, bool pIsSubstring)
+        {
+            return RestrictByLocation(RestrictByInterval(pStart, pEnd), pLocation, pIsSubstring);
+        }
+
+        public List<Outlook.AppointmentItem> FindAppointmentsByLocation(string pLocation, DateTime pStart, DateTime pEnd)
+        {
+            return FindAppointmentsByLocation(pLocation, pStart, pEnd, false);
+        }
+
+        //Returns every appointment with one of the given locations within a given interval
+        public List<Outlook.AppointmentItem> FindAppointmentsByLocation(string[] pLocations, DateTime pStart, DateTime pEnd, bool pIsSubstring)
+        {
+            Outlook.Items apptsInInterval = RestrictByInterval(pStart, pEnd);
+            List <Outlook.AppointmentItem> appts = new List<Outlook.AppointmentItem>();
+            foreach (string location in pLocations)
+            {
+                appts.Concat(RestrictByLocation(RestrictByInterval(pStart, pEnd), location, pIsSubstring));
+            }
+            return appts;
+        }
+
+        public List<Outlook.AppointmentItem> FindAppointmentsByLocation(string[] pLocations, DateTime pStart, DateTime pEnd)
+        {
+            return FindAppointmentsByLocation(pLocations, pStart, pEnd, false);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+        /* Methods for class internal use */
+        //--------------------------------------------------------------------------------------------------------------
+
+        private Outlook.Items RestrictByInterval(DateTime pStart, DateTime pEnd)
+        {
+            string filter = String.Format("[Start] >= '{0}' AND [End] < '{1}'",
                 pStart.ToString("g"), pEnd.AddDays(1).ToString("g"));
 
             Outlook.Items callItems = _CalendarItems;
@@ -93,69 +163,32 @@ namespace Outlook_Access
             }
         }
 
-        //Returns every appointment with a given subject within a given interval
-        public Outlook.Items FindAppointmentsBySubject(string pSubject, DateTime pStart, DateTime pEnd)
-        {
-            return RestrictBySubject(FindAppointmentsInRange(pStart, pEnd), pSubject);
-        }
-
-        //Returns every appointment with one of the given subjects within a given interval
-        public Outlook.Items FindAppointmentsBySubject(string[] pSubjects, DateTime pStart, DateTime pEnd)
-        {
-            Outlook.Items apptsInInterval = FindAppointmentsInRange(pStart, pEnd);
-            Outlook.Items appts = new Outlook.Items();
-            foreach (string subject in pSubjects)
-            {
-                foreach (Outlook.AppointmentItem item in RestrictBySubject(apptsInInterval, subject))
-                {
-                    appts.Add(item);
-                }
-            }
-            appts.Sort("[Start]", Type.Missing);
-            return appts;
-        }
-
-        //Returns every appointment in a given location within a given interval 
-        public Outlook.Items FindAppointmentsByLocation(string pLocation, DateTime pStart, DateTime pEnd)
-        {
-            return RestrictByLocation(FindAppointmentsInRange(pStart, pEnd), pLocation);
-        }
-
-        //Returns every appointment with one of the given locations within a given interval
-        public Outlook.Items FindAppointmentsByLocation(string[] pLocations, DateTime pStart, DateTime pEnd)
-        {
-            Outlook.Items apptsInInterval = FindAppointmentsInRange(pStart, pEnd);
-            Outlook.Items appts = new Outlook.Items();
-            foreach (string location in pLocations)
-            {
-                foreach (Outlook.AppointmentItem item in RestrictByLocation(apptsInInterval, location))
-                {
-                    appts.Add(item);
-                }
-            }
-            appts.Sort("[Start]", Type.Missing);
-            return appts;
-        }
-
-        /* Methods for class internal use */
-
         //Restrict a list of appointments to the ones with a given subject
-        private Outlook.Items RestrictBySubject(Outlook.Items pAppointments, string pSubject)
+        private List <Outlook.AppointmentItem> RestrictBySubject(Outlook.Items pAppointments, string pSubject, bool pIsSubstring)
         {
-            StringBuilder subjectFilter = new StringBuilder();
-            subjectFilter.Append("@SQL=" + "\"" + "urn:schemas:httpmail:subject" + "\"");
-
-            if (_OutlookApplication.Session.DefaultStore.IsInstantSearchEnabled)
+            List<Outlook.AppointmentItem> appts = new List<Outlook.AppointmentItem>();
+            string filter;
+            if (pIsSubstring == true)
             {
-                subjectFilter.Append(@" ci_startswith '{pSubject}'");
+                StringBuilder subjectFilter = new StringBuilder();
+                subjectFilter.Append("@SQL=" + "\"" + "urn:schemas:httpmail:subject" + "\"");
+                string temp = String.Format(" like '%{0}%'", pSubject);
+                subjectFilter.Append(temp);
+                filter = subjectFilter.ToString();
             }
             else
             {
-                subjectFilter.Append(@" like '%{pSubject}%'");
+                filter = String.Format("[Subject] = {0}", pSubject);
             }
 
-            Outlook.Items appts = pAppointments;
-            appts.Restrict(subjectFilter.ToString());
+            Outlook.AppointmentItem appointment = pAppointments.Find(filter);
+            
+            while (appointment != null)
+            {
+                appts.Add(appointment);
+                appointment = pAppointments.FindNext() as Outlook.AppointmentItem;
+            }
+
             if (appts.Count > 0)
             {
                 return appts;
@@ -167,22 +200,31 @@ namespace Outlook_Access
         }
 
         //Restrict a list of appointments to the ones with  a given location
-        private Outlook.Items RestrictByLocation(Outlook.Items pAppointments, string pLocation)
+        private List<Outlook.AppointmentItem> RestrictByLocation(Outlook.Items pAppointments, string pLocation, bool pIsSubstring)
         {
-            StringBuilder locationFilter = new StringBuilder();
-            locationFilter.Append("@SQL=" + "\"" + "urn:schemas:httpmail:location" + "\"");
-
-            if (_OutlookApplication.Session.DefaultStore.IsInstantSearchEnabled)
+            List<Outlook.AppointmentItem> appts = new List<Outlook.AppointmentItem>();
+            string filter;
+            if (pIsSubstring == true)
             {
-                locationFilter.Append(@" ci_startswith '{pLocation}'");
+                StringBuilder subjectFilter = new StringBuilder();
+                subjectFilter.Append("@SQL=" + "\"" + "urn:schemas:httpmail:location" + "\"");
+                string temp = String.Format(" like '%{0}%'", pLocation);
+                subjectFilter.Append(temp);
+                filter = subjectFilter.ToString();
             }
             else
             {
-                locationFilter.Append(@" like '%{pLocation}%'");
+                filter = String.Format("[Location] = {0}", pLocation);
             }
 
-            Outlook.Items appts = pAppointments;
-            appts.Restrict(locationFilter.ToString());
+            Outlook.AppointmentItem appointment = pAppointments.Find(filter);
+
+            while (appointment != null)
+            {
+                appts.Add(appointment);
+                appointment = pAppointments.FindNext() as Outlook.AppointmentItem;
+            }
+
             if (appts.Count > 0)
             {
                 return appts;
