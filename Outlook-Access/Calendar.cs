@@ -76,11 +76,13 @@ namespace Outlook_Access
         //Returning every appointment within a given interval 
         public Outlook.Items FindAppointmentsInRange(DateTime pStart, DateTime pEnd)
         {
-            string filter = "[Start] >=\'" + pStart.ToString("g") + "' AND [END] <= '" + pEnd.ToString("g") + "'";
+            string filter = String.Format("[Start] >= '{0}' AND [End] < '{1}'", 
+                pStart.ToString("g"), pEnd.AddDays(1).ToString("g"));
 
-            Outlook.Items restrictedItems = _CalendarItems.Restrict(filter);
-            restrictedItems.Sort("[Start]", Type.Missing);
-            restrictedItems.IncludeRecurrences = true;
+            Outlook.Items callItems = _CalendarItems;
+            callItems.IncludeRecurrences = true;
+            callItems.Sort("[Start]", Type.Missing);
+            Outlook.Items restrictedItems = callItems.Restrict(filter);
             if (restrictedItems.Count > 0)
             {
                 return restrictedItems;
