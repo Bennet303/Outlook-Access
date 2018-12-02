@@ -59,13 +59,23 @@ namespace Outlook_Access
         public Calendar() : this(null) { }
 
 
+        public void Disconnect()
+        {
+            _OutlookNameSpace.Logoff();
+
+            _OutlookApplication = null;
+            _OutlookCalendar = null;
+            _OutlookNameSpace = null;
+            _CalendarItems = null;
+        }
+
 
         //Returning every appointment within a given interval 
         public Outlook.Items FindAppointmentsInRange(DateTime pStart, DateTime pEnd)
         {
             string filter = "[Start] >=\'" + pStart.ToString("g") + "' AND [END] <= '" + pEnd.ToString("g") + "'";
 
-            Outlook.Items restrictedItems = _OutlookCalendar.Items.Restrict(filter);
+            Outlook.Items restrictedItems = _CalendarItems.Restrict(filter);
             restrictedItems.Sort("[Start]", Type.Missing);
             restrictedItems.IncludeRecurrences = true;
             if (restrictedItems.Count > 0)
