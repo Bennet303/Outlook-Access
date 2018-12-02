@@ -57,5 +57,27 @@ namespace Outlook_Access
         public Calendar(string pFolderID) : this(null, null, false, true, pFolderID) { }
 
         public Calendar() : this(null) { }
+
+
+
+        //Returning every appointment within a given interval 
+        public Outlook.Items FindAppointmentsInRange(DateTime pStart, DateTime pEnd)
+        {
+            string filter = "[Start] >=\'" + pStart.ToString("g") + "' AND [END] <= '" + pEnd.ToString("g") + "'";
+
+            Outlook.Items restrictedItems = _OutlookCalendar.Items.Restrict(filter);
+            restrictedItems.Sort("[Start]", Type.Missing);
+            restrictedItems.IncludeRecurrences = true;
+            if (restrictedItems.Count > 0)
+            {
+                return restrictedItems;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+
     }
 }
