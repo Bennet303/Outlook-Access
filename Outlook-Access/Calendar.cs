@@ -22,15 +22,18 @@ namespace Outlook_Access
             {
                 _OutlookApplication = new Outlook.Application();
                 _OutlookNameSpace = _OutlookApplication.GetNamespace(pNamespace);
-
-                if (pUsername != null && pPassword != null)
+                object username = pUsername;
+                object password = pPassword;
+                
+                if (username == null)
                 {
-                    _OutlookNameSpace.Logon(pUsername, pPassword);
+                    username = Missing.Value;
                 }
-                else
+                if (password == null)
                 {
-                    _OutlookNameSpace.Logon(Missing.Value, Missing.Value);
+                    password = Missing.Value;
                 }
+                _OutlookNameSpace.Logon(username, password, pShowDialog, pNewSession);
 
                 if (pFolderID == null)
                 {
@@ -55,7 +58,7 @@ namespace Outlook_Access
 
         public Calendar(string pUsername, string pPassword) : this(pUsername, pPassword, false, true) { }
 
-        public Calendar(string pFolderID) : this(null, null, false, true, pFolderID) { }
+        public Calendar(string pUsername) : this(pUsername, null) { }
 
         public Calendar() : this(null) { }
 
