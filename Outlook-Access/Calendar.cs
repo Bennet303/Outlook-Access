@@ -168,14 +168,15 @@ namespace Outlook_Access
         //Restrict a list of appointments to the ones with a given subject
         private static List<Outlook.AppointmentItem> RestrictBySubject(Outlook.Items pAppointments, string pSubject, bool pIsSubstring)
         {
-            string filter = BuildFilterString("Subject", pSubject, pIsSubstring).ToString();
+
+            string filter = BuildFilterString("Subject", pSubject, pIsSubstring, "urn:schema:httpmail:subject").ToString();
             return Restrict(pAppointments, filter);
         }
 
         //Restrict a list of appointments to the ones with  a given location
         private static List<Outlook.AppointmentItem> RestrictByLocation(Outlook.Items pAppointments, string pLocation, bool pIsSubstring)
-        {
-            string filter = BuildFilterString("Location", pLocation, pIsSubstring).ToString();
+        { 
+            string filter = BuildFilterString("Location", pLocation, pIsSubstring, "urn:schema:calendar:location").ToString();
             return Restrict(pAppointments, filter);   
         }
 
@@ -202,13 +203,13 @@ namespace Outlook_Access
         }
 
         //Builds a filter-string that can be used to search for appointments matching this filter
-        private static StringBuilder BuildFilterString(string pKeyword, string pValue, bool pIsSubstring)
+        private static StringBuilder BuildFilterString(string pKeyword, string pValue, bool pIsSubstring, string pCriteria)
         {
             StringBuilder subjectFilter = new StringBuilder();
             if (pIsSubstring == true)
             {
-                string keywordCondition = String.Format("@SQL=" + "\"" + "urn:schemas:httpmail:{0}" + "\"", pValue.ToLower());
-                subjectFilter.Append(keywordCondition);
+                subjectFilter.Append("SQL=");
+                subjectFilter.Append(pCriteria);
                 string valueCondition = String.Format(" like '%{0}%'", pValue);
             }
             else
