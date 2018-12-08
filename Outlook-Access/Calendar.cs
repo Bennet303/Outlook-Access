@@ -218,9 +218,13 @@ namespace Outlook_Access
                     recurrencePattern.NoEndDate = true;
                 }
 
-                if (pOccurrences != 0)
+                if (pOccurrences > 0)
                 {
                     recurrencePattern.Occurrences = pOccurrences;
+                }
+                else
+                {
+                    throw new ArgumentNullException("No viable value for Occurrences selected");
                 }
 
                 Outlook.OlRecurrenceType recurrenceType;
@@ -235,6 +239,8 @@ namespace Outlook_Access
                 recurrencePattern.RecurrenceType = recurrenceType;
 
                 recurrencePattern.DayOfWeekMask = (Outlook.OlDaysOfWeek)pDaysOfWeek;
+
+                SaveAndCloseAppointment(pRecurringAppointment);
             }
             catch (Exception e)
             {
@@ -270,7 +276,7 @@ namespace Outlook_Access
                     appointment.Categories = pCategory;
                 }
 
-                SaveAndDisplayAppointment(appointment);
+                SaveAndCloseAppointment(appointment);
                 return appointment;
             }
             catch (Exception e)
@@ -280,10 +286,9 @@ namespace Outlook_Access
             }
         }
 
-        private static void SaveAndDisplayAppointment(Outlook.AppointmentItem pAppt)
+        private static void SaveAndCloseAppointment(Outlook.AppointmentItem pAppt)
         {
-            pAppt.Save();
-            pAppt.Display(true);
+            pAppt.Close(0); //Save and Close the appointment
         }
         
         private Outlook.Items RestrictByInterval(DateTime pStart, DateTime pEnd)
