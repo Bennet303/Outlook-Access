@@ -156,19 +156,19 @@ namespace Outlook_Access
         /*--------------------------------------------------------------------------------------------
          * Writing
          -------------------------------------------------------------------------------------------*/
-        public void AddAppointment(string pSubject, DateTime pStart, DateTime pEnd, string pLocation, bool pAllDay, string pBody, string pCategory)
+        public void AddAppointment(string pSubject, DateTime pStart, DateTime pEnd, string pLocation, bool pAllDay, string pBody, string pCategory, bool pReminder)
         {
-            InternalAddAppointment(pSubject, pStart, pEnd, pLocation, pAllDay, pBody, pCategory);
+            InternalAddAppointment(pSubject, pStart, pEnd, pLocation, pAllDay, pBody, pCategory, pReminder);
         }
 
         public void AddAppointment(string pSubject, DateTime pStart, double pLength, string pLocation, bool pAllDay, string pBody, string pCategory)
         {
-            AddAppointment(pSubject, pStart, pStart.AddHours(pLength), pLocation, pAllDay, pBody, pCategory);
+            AddAppointment(pSubject, pStart, pStart.AddHours(pLength), pLocation, pAllDay, pBody, pCategory, false);
         }
 
         public void AddAppointment(string pSubject, DateTime pStart, DateTime pEnd, string pLocation, bool pAllDay, string pBody)
         {
-            AddAppointment(pSubject, pStart, pEnd, pLocation, pAllDay, pBody, null);
+            AddAppointment(pSubject, pStart, pEnd, pLocation, pAllDay, pBody, null, false);
         }
 
         public void AddAppointment(string pSubject, DateTime pStart, DateTime pEnd, string pLocation, bool pAllDay)
@@ -196,9 +196,9 @@ namespace Outlook_Access
             AddAppointment(pSubject, pStart, pStart.AddHours(1.5));
         }
 
-        public Outlook.AppointmentItem AddReccuringAppointment(string pSubject, DateTime pStart, DateTime pEnd, string pLocation, bool pAllDay, string pBody, string pCategory)
+        public Outlook.AppointmentItem AddReccuringAppointment(string pSubject, DateTime pStart, DateTime pEnd, string pLocation, bool pAllDay, string pBody, string pCategory, bool pReminder)
         {
-            return InternalAddAppointment(pSubject, pStart, pEnd, pLocation, pAllDay, pBody, pCategory);
+            return InternalAddAppointment(pSubject, pStart, pEnd, pLocation, pAllDay, pBody, pCategory, pReminder);
         }
 
         public void EditRecurringItem(Outlook.AppointmentItem pRecurringAppointment, DateTime pPatternStart, DateTime pPatternEnd,
@@ -253,7 +253,7 @@ namespace Outlook_Access
         //--------------------------------------------------------------------------------------------------------------
 
 
-        private Outlook.AppointmentItem InternalAddAppointment(string pSubject, DateTime pStart, DateTime pEnd, string pLocation, bool pAllDay, string pBody, string pCategory)
+        private Outlook.AppointmentItem InternalAddAppointment(string pSubject, DateTime pStart, DateTime pEnd, string pLocation, bool pAllDay, string pBody, string pCategory, bool pReminder)
         {
             try
             {
@@ -263,6 +263,7 @@ namespace Outlook_Access
                 appointment.Start = pStart;
                 appointment.End = pEnd;
                 appointment.AllDayEvent = pAllDay;
+                appointment.ReminderSet = pReminder;
                 if (pLocation != null)
                 {
                     appointment.Location = pLocation;
