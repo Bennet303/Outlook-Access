@@ -248,6 +248,33 @@ namespace Outlook_Access
             }
         }
 
+        /*--------------------------------------------------------------------------------------------
+         * Others
+         -------------------------------------------------------------------------------------------*/
+
+        public static Outlook.OlDaysOfWeek CreateDaysOfWeekMask(bool pMonday, bool pTuesday, bool pWednesday,
+            bool pThursday, bool pFriday, bool pSaturday, bool pSunday)
+        {
+            int enumValue = 0;
+            if (pMonday == true) { enumValue += 2; }
+            if (pTuesday == true) { enumValue += 4; }
+            if (pWednesday == true) { enumValue += 8; }
+            if (pThursday == true) { enumValue += 16; }
+            if (pFriday == true) { enumValue += 32; }
+            if (pSaturday == true) { enumValue += 64; }
+            if (pSunday == true) { enumValue += 1; }
+
+            if (enumValue > 0)
+            {
+                Outlook.OlDaysOfWeek mask = (Outlook.OlDaysOfWeek)enumValue;
+                return mask;
+            }
+            else
+            {
+                throw new ArgumentNullException("Atleast one day of the week has to be selected");
+            }
+        }
+
         //--------------------------------------------------------------------------------------------------------------
         /* Methods for class internal use */
         //--------------------------------------------------------------------------------------------------------------
