@@ -107,7 +107,11 @@ namespace Outlook_Access
             List<Outlook.AppointmentItem> appts = new List<Outlook.AppointmentItem>();
             foreach (string subject in pSubjects)
             {
-                appts.AddRange(RestrictBySubject(RestrictByInterval(pStart, pEnd), subject, pIsSubstring));
+                List<Outlook.AppointmentItem> appointmentItems = RestrictBySubject(RestrictByInterval(pStart, pEnd), subject, pIsSubstring);
+                if (appointmentItems != null)
+                {
+                    appts.AddRange(appointmentItems);
+                }
             }
             return appts;
         }
@@ -135,7 +139,11 @@ namespace Outlook_Access
             List<Outlook.AppointmentItem> appts = new List<Outlook.AppointmentItem>();
             foreach (string location in pLocations)
             {
-                appts.AddRange(RestrictByLocation(RestrictByInterval(pStart, pEnd), location, pIsSubstring));
+                List<Outlook.AppointmentItem> appointmentItems = RestrictByLocation(RestrictByInterval(pStart, pEnd), location, pIsSubstring);
+                if (appointmentItems != null)
+                {
+                    appts.AddRange(appointmentItems);
+                }
             }
             return appts;
         }
