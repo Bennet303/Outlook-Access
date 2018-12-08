@@ -7,49 +7,19 @@ using System.Reflection;
 
 namespace Outlook_Access
 {
-    public class Calendar
+    public class Calendar : AccessClass
     {
-        private Outlook.Application _OutlookApplication;
-        private Outlook.NameSpace _OutlookNameSpace;
-        private Outlook.MAPIFolder _OutlookCalendar;
-        private Outlook.Items _CalendarItems;
 
         /* Constructors */
 
         public Calendar(string pUsername, string pPassword, bool pShowDialog, bool pNewSession, string pNamespace, string pFolderID)
         {
-            try
+            Connect(pUsername, pPassword, pShowDialog, pNewSession, pNamespace, pFolderID);
+            if (pFolderID == null)
             {
-                _OutlookApplication = new Outlook.Application();
-                _OutlookNameSpace = _OutlookApplication.GetNamespace(pNamespace);
-                object username = pUsername;
-                object password = pPassword;
-
-                if (username == null)
-                {
-                    username = Missing.Value;
-                }
-                if (password == null)
-                {
-                    password = Missing.Value;
-                }
-                _OutlookNameSpace.Logon(username, password, pShowDialog, pNewSession);
-
-                if (pFolderID == null)
-                {
-                    _OutlookCalendar = _OutlookNameSpace.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderCalendar);
-                }
-                else
-                {
-                    _OutlookCalendar = _OutlookNameSpace.GetFolderFromID(pFolderID);
-                }
-
-                _CalendarItems = _OutlookCalendar.Items;
+                OutlookFolder = OutlookNamespace.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderCalendar);
             }
-            catch (Exception e)
-            {
-                Console.WriteLine($"{e} Exception caught");
-            }
+            OutlookFolderItems = OutlookFolder.Items;
         }
 
         public Calendar(string pUsername, string pPassword, bool pShowDialog, bool pNewSession, string pFolderID) : this(pUsername, pPassword, pShowDialog, pNewSession, "mapi", pFolderID) { }
@@ -63,16 +33,6 @@ namespace Outlook_Access
         public Calendar() : this(null) { }
 
         /* Public methods */
-
-        public void Disconnect()
-        {
-            _OutlookNameSpace.Logoff();
-
-            _OutlookApplication = null;
-            _OutlookCalendar = null;
-            _OutlookNameSpace = null;
-            _CalendarItems = null;
-        }
 
         /*--------------------------------------------------------------------------------------------
          * Reading
@@ -285,7 +245,7 @@ namespace Outlook_Access
             try
             {
                 Outlook.AppointmentItem appointment = (Outlook.AppointmentItem)
-                    _OutlookApplication.CreateItem(Outlook.OlItemType.olAppointmentItem);
+                    OutlookApplication.CreateItem(Outlook.OlItemType.olAppointmentItem);
                 appointment.Subject = pSubject;
                 appointment.Start = pStart;
                 appointment.End = pEnd;
@@ -318,13 +278,13 @@ namespace Outlook_Access
         {
             pAppt.Close(0); //Save and Close the appointment
         }
-        
+
         private Outlook.Items RestrictByInterval(DateTime pStart, DateTime pEnd)
         {
             string filter = String.Format("[Start] >= '{0}' AND [End] < '{1}'",
                 pStart.ToString("g"), pEnd.AddDays(1).ToString("g"));
 
-            Outlook.Items callItems = _CalendarItems;
+            Outlook.Items callItems = OutlookFolderItems;
             callItems.IncludeRecurrences = true;
             callItems.Sort("[Start]", Type.Missing);
             Outlook.Items restrictedItems = callItems.Restrict(filter);
@@ -348,9 +308,9 @@ namespace Outlook_Access
 
         //Restrict a list of appointments to the ones with  a given location
         private static List<Outlook.AppointmentItem> RestrictByLocation(Outlook.Items pAppointments, string pLocation, bool pIsSubstring)
-        { 
+        {
             string filter = BuildFilterString("Location", pLocation, pIsSubstring, "urn:schema:calendar:location").ToString();
-            return Restrict(pAppointments, filter);   
+            return Restrict(pAppointments, filter);
         }
 
         //Restricts a List of Outlook.Items to the ones matching a given filter an returns them as a list of Outlook.AppointmentsItems
