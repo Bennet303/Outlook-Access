@@ -340,13 +340,15 @@ namespace Outlook_Access
             StringBuilder subjectFilter = new StringBuilder();
             if (pIsSubstring == true)
             {
-                subjectFilter.Append("SQL=");
+                subjectFilter.Append("@SQL=");
                 subjectFilter.Append(pCriteria);
                 string valueCondition = String.Format(" like '%{0}%'", pValue);
+                subjectFilter.Append(valueCondition);
             }
             else
             {
                 string condition = String.Format("[{0}] = {1}", pKeyword, pValue);
+                subjectFilter.Append(condition);
             }
 
             return subjectFilter;
