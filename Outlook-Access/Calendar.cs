@@ -317,42 +317,14 @@ namespace Outlook_Access
         private static List<Outlook.AppointmentItem> Restrict(Outlook.Items pItems, string pFilter)
         {
             List<Outlook.AppointmentItem> appts = new List<Outlook.AppointmentItem>();
-            Outlook.AppointmentItem appointment = pItems.Find(pFilter);
+            Outlook.Items temp = pItems.Restrict(pFilter);
 
-            while (appointment != null)
+            foreach (Outlook.AppointmentItem appointment in temp)
             {
                 appts.Add(appointment);
-                appointment = pItems.FindNext() as Outlook.AppointmentItem;
             }
-
-            if (appts.Count > 0)
-            {
-                return appts;
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        //Builds a filter-string that can be used to search for appointments matching this filter
-        private static StringBuilder BuildFilterString(string pKeyword, string pValue, bool pIsSubstring, string pCriteria)
-        {
-            StringBuilder subjectFilter = new StringBuilder();
-            if (pIsSubstring == true)
-            {
-                subjectFilter.Append("@SQL=");
-                subjectFilter.Append(pCriteria);
-                string valueCondition = String.Format(" like '%{0}%'", pValue);
-                subjectFilter.Append(valueCondition);
-            }
-            else
-            {
-                string condition = String.Format("[{0}] = {1}", pKeyword, pValue);
-                subjectFilter.Append(condition);
-            }
-
-            return subjectFilter;
+            return appts as List<Outlook.AppointmentItem>;
+            
         }
     }
 }
