@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.28010.2019
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Outlook-Access", "Outlook-Access\Outlook-Access.csproj", "{F58CA2CB-A4F6-4FF9-BF15-E6C3B11183B4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OutlookAccessTests", "OutlookAccessTests\OutlookAccessTests.csproj", "{29CDD3F9-DB01-4DC6-AB1C-AF2A11A3D22F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{F58CA2CB-A4F6-4FF9-BF15-E6C3B11183B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F58CA2CB-A4F6-4FF9-BF15-E6C3B11183B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F58CA2CB-A4F6-4FF9-BF15-E6C3B11183B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{29CDD3F9-DB01-4DC6-AB1C-AF2A11A3D22F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29CDD3F9-DB01-4DC6-AB1C-AF2A11A3D22F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29CDD3F9-DB01-4DC6-AB1C-AF2A11A3D22F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{29CDD3F9-DB01-4DC6-AB1C-AF2A11A3D22F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
