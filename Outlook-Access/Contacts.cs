@@ -70,7 +70,7 @@ namespace Outlook_Access
             filter.Append(BuildFilterString("FirstName", pFirstName, pSubstring, "").ToString());
             filter.Append(" and ");
             filter.Append(BuildFilterString("LastName", pLastName, pSubstring, "").ToString());
-
+            
             return Restrict(OutlookFolderItems, filter.ToString()) as List<Outlook.ContactItem>;
         }
 
@@ -80,7 +80,11 @@ namespace Outlook_Access
         }
 
         
-
+        public List<Outlook.ContactItem> FindContactsByEmail(string pEmail, bool pSubstring)
+        {
+            string filter = BuildFilterString("Email1Address", pEmail, pSubstring, "urn:schemas:contacts:email1").ToString();
+            return Restrict(OutlookFolderItems,filter);
+        }
 
 
         //--------------------------------------------------------------------------------------------------------------
